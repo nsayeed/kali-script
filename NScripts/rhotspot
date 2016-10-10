@@ -1,5 +1,5 @@
 #! /bin/bash 
-echo "Script by NSSG"
+echo "Script in progress"
 echo "Do you need to install dnsmasq and hostapd? (y/n): "
 read iconfig
 	if [ "$iconfig" = "y" ]; then 
