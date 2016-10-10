@@ -1,0 +1,54 @@
+#! /bin/bash 
+echo "Script by NSSG"
+echo "Do you need to install dnsmasq and hostapd? (y/n): "
+read iconfig
+	if [ "$iconfig" = "y" ]; then 
+	sudo apt-get install dnsmasq hostapd wireless-tools iw wvdial
+	fi
+
+echo "Do you want to setup a wifi hotspot" 
+read choice
+	
+	if [ "$choice" = "y" ]; then 
+	/etc/init.d/apache2 start
+	sed -i 's#^DAEMON_CONF=.*#DAEMON_CONF=/etc/hostapd/hostapd.conf#' /etc/init.d/hostapd
+	echo "Do you want to modify dns settings (add spoof entries)? (y/n): "
+	read dnsmod
+		if [ "$dnsmod" = "y" ]; then 
+		sudo nano /etc/dnsmasq.conf
+		fi
+	echo "Do you want to start DNSspoof (y/n)" 
+	read spoofstart
+		if [ "spoofstart" = "y" ]; then	
+		service dnsmasq start 
+		fi
+	
+	ifconfig wlan0 up 
+	ifconfig wlan0 10.0.0.1/24 #change this to match DHCP range specified in hostapd
+	iptables -t nat -F
+	iptables -F
+	iptables -t nat -A POSTROUTING -o ppo -j MASQUERADE
+	iptables -A FORWARD -i wlan0 ppo -j ACCEPT
+	echo '1' > /proc/sys/net/ipv4/ip_forward 
+	
+	echo "Do you want to modify hotspot settings? (y/n): "
+	read modwifi
+		if [ "modwifi" = "y" ]; then	
+		sudo nano /hostpad/hostapd.conf 
+		fi
+
+	echo "start wifi hotspot? (y/n): "
+	read wifistart
+		if [ "wifistart" = "y" ]; then 
+		service hostapd start /etc/hostapd/hostapd.conf
+		fi
+
+	fi
+
+
+
+	
+	
+	
+
+	
